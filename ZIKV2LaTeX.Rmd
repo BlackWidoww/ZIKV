@@ -1,0 +1,220 @@
+---
+title: "Two-Host Two-Vector Species Model of Zika Virus"
+author: "Courtney D. Shelley"
+date: "May 10, 2016"
+header-includes:
+   - \usepackage{mathrsfs}
+   - \usepackage{amsmath}
+output: pdf_document
+---
+
+```{r fig.width=4, fig.height=2.5,echo=FALSE, fig.align='center'}
+setwd("~/Dropbox/BarkerLab/ZIKV")
+library(png)
+library(grid)
+img <- readPNG("ZikaModel2.png")
+ grid.raster(img)
+```
+
+
+##Competent Host ODEs
+
+$\frac{dS_H}{dt} = b_H(N_H-I_H) - \beta_{V_C H} \frac{S_H}{N_H}I_{V_C} - \beta_{V_I H} I_{V_I}-\beta_{HH}\frac{S_H I_H}{N_H^2} - d_H S_H$
+
+$\frac{dE_H}{dt} = \left( \beta_{V_C H}I_{V_I} + \beta_{V_IH}I_{V_I} + \beta_{HH}\frac{I_H}{N_H} \right) \frac{S_H}{N_H} - \epsilon_H E_H - d_H E_H$
+
+$\frac{dI_H}{dt} = b_H I_H + \epsilon_H E_H - \gamma_H I_H - d_H I_H$
+
+$\frac{dR_H}{dt} = \gamma_H I_H - d_H R_H$
+
+>$\Longrightarrow \frac{dN_H}{dt} = b_H N_H - d_H N_H = (b_H - d_H)N_H$
+
+##Dead-End Host ODEs
+
+$\frac{dN_D}{dt} = b_D N_D - d_D N_D \frac{N_D}{K_D}$
+
+##Competent Vector ODEs
+
+$\frac{dS_{C}}{dt} = \theta_{C}P_{C} - \beta_{HC}S_{C}\frac{I_H}{N_H} - d_{C}S_{C}\frac{N_{C}}{K_{C}}$
+
+$\frac{dE_{C}}{dt} = \beta_{HC}S_{C}\frac{I_H}{N_H}-\epsilon_{C}E_{C}-d_{C}E_{C}\frac{N_{C}}{K_{C}}$
+
+$\frac{dI_{C}}{dt} = \epsilon_{C}E_{C} - d_{C}I_{C}\frac{N_{C}}{K_{C}}$
+
+>$\Longrightarrow \frac{dN_{C}}{dt} = \theta_{C}P_{C} - d_{C}N_{C}\frac{N_{C}}{K_{C}}$
+
+##Incompetent Vector ODEs
+
+$\frac{dS_{I}}{dt} = \theta_{I}P_{I} - \beta_{HI}S_{I}\frac{I_H}{N_H} - d_{I}S_{I}\frac{N_{I}}{K_{I}}$
+
+$\frac{dE_{I}}{dt} = \beta_{HI}S_{I}\frac{I_H}{N_H} - \epsilon_{I}E_{I} - d_{I}E_{I}\frac{N_{I}}{K_{I}}$
+
+$\frac{dI_I}{dt} = \epsilon_I E_I - d_I I_I \frac{N_I}{K_I}$
+
+>$\Longrightarrow \frac{dN_{I}}{dt} = \theta_{I}P_{I} - d_{I}N_{I}\frac{N_{I}}{K_{I}}$
+
+
+Per van den Driessche (2001), we focus our attention only on pools with incoming new infections. For vertical transmission, this is only found in the host species:
+
+>$\frac{dE_H}{dt} = \left( \beta_{CH}I_{C} + \beta_{IH}I_{I} + \beta_{HH}\frac{I_H}{N_H}  \right) \frac{S_H}{N_H} - \epsilon_H E_H - d_H E_H$
+
+>>$= \mathscr{F}_V - \mathscr{V}_V = \left( \beta_{HH} \frac{I_H S_H}{N_H^2} \right) - \left( \epsilon_{H}E_H + d_H E_H - \left(\beta_{CH}I_{C} + \beta_{IH}I_{I} + \beta_{HH}\frac{I_H}{N_H} \right) \right)$
+
+>$\frac{dI_H}{dt} = b_H I_H + \epsilon_H E_H - \gamma_H I_H - d_H I_H$
+
+>>$= \mathscr{F}_V - \mathscr{V}_V = \left( b_H I_H \right) - \left( \gamma_H I_H +d_H I_H - \epsilon_H E_H \right)$
+
+Converting to matrix notation, 
+
+\[
+\mathscr{F}_V = 
+\begin{bmatrix}
+\beta_{HH}\frac{I_H S_H}{N_H^2}\\
+b_H I_H
+\end{bmatrix}
+\text{, }
+\mathscr{V}_V = 
+\begin{bmatrix}
+\epsilon_HE_H + d_HE_H - \left( \beta_{CH}I_{C} + \beta_{IH}I_{I} + \beta_{HH}\frac{I_H}{N_H}\right)\\
+\gamma_H I_H + d_H I_H - \epsilon_H E_H.
+\end{bmatrix}
+\]
+
+It follows that $F_V$ and $V_V$ are found as the Jacobian of $\mathscr{F}_V$ and $\mathscr{V}_V$:
+
+\[
+F_V = 
+\begin{bmatrix}
+0 & \beta_{HH}\frac{S_H}{N_H^2}\\
+0 & b_H
+\end{bmatrix}
+\text{, and }
+V_V = 
+\begin{bmatrix}
+\epsilon_H + dH & \frac{\beta_{HH}}{N_H}\\
+-\epsilon_H & \gamma_H + d_H
+\end{bmatrix}
+\]
+
+For the horizontal transmission component, focus is on pools with incoming new horizontally-acquired infection, 
+
+\[
+\frac{d}{dt}
+\begin{bmatrix}
+E_H\\
+I_H\\
+E_{C}\\
+I_{C}\\
+E_{I}\\
+I_{I}
+\end{bmatrix}
+= \mathscr{F}_H - \mathscr{V}_H =
+\begin{bmatrix}
+\left( \beta_{CH}I_{C} + \beta_{IH}I_{I} + \beta_{HH}\frac{I_H}{N_H}\right)\frac{S_H}{N_H}\\
+0\\
+\beta_{HC}S_{C}\frac{I_H}{N_H}\\
+0\\
+\beta_{HI}S_{I}\frac{I_H}{N_H}\\
+0
+\end{bmatrix}
+\text{ - }
+\begin{bmatrix}
+\epsilon_H E_H + d_H E_H\\
+\gamma_H I_H + d_H I_H - \epsilon_H E_H - b_H I_H\\
+\epsilon_{C} E_{C} + d_{C}E_{C}\frac{N_{C}}{K_{C}}\\
+d_{C}I_{C}\frac{N_{C}}{K_{C}} - \epsilon_{C}E_{C}\\
+\epsilon_{I}E_{I}+d_{I}E_{I}\frac{N_{I}}{K_{I}}\\
+d_{I}I_{I}\frac{N_{I}}{K_{I}}-\epsilon_{I}E_{I}
+\end{bmatrix}.
+\]
+
+$F_H$ and $V_H$ are again the Jacobian of $\mathscr{F}_H$ and $\mathscr{V}_H$. Thus, 
+
+\[
+F_H = 
+\begin{bmatrix}
+0 & \beta_{HH}\frac{S_H}{N_H^2} & 0 & \beta_{CH}\frac{S_H}{N_H} & 0 & \beta_{IH}\frac{S_H}{N_H}\\
+0 & 0 & 0 & 0 & 0 & 0\\
+0 & \beta_{HC}\frac{S_{C}}{N_H} & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0 & 0\\
+0 & \beta_{HI}\frac{S_{I}}{N_H} & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0 & 0
+\end{bmatrix}
+\]
+
+\[
+V_H = 
+\begin{bmatrix}
+\epsilon_H + d_H & 0 & 0 & 0 & 0 & 0\\
+-\epsilon_H & \gamma_H + d_H - b_H & 0 & 0 & 0 & 0\\
+0 & 0 & \epsilon_{C} + d_{C}\kappa_1 & 0 & 0 & 0\\
+0 & 0 & -\epsilon_{C} & d_{C}\kappa_1 & 0 & 0\\
+0 & 0 & 0 & 0 & \epsilon_{I} + d_{I}\kappa_2 & 0\\
+0 & 0 & 0 & 0 & -\epsilon_{I} & d_{I}\kappa_2 
+\end{bmatrix}
+\]
+
+where $\kappa_1 = \frac{N_{C}}{K_{C}}, \kappa_2 = \frac{N_{C}}{K_{I}}.$
+
+The reproductive number, $R_0$, equals the sum of the spectral radii of the next generation matrices, $F_V V_V^{-1} and F_H V_H^{-1}$.  That is, $R_0 = \rho(F_V V_V^{-1}) + \rho(F_H V_H^{-1}).$
+
+For the vertical portion, 
+
+\[
+V_V^{-1} = \frac{-N_H}{\epsilon_H \beta_{HH} + N_H(\epsilon_H+d_H)(\gamma_H+d_H)}
+\begin{bmatrix}
+-(\gamma_H+d_H) & \frac{\beta_{HH}}{N_H}\\
+-\epsilon_H & -(\epsilon_H+d_H)
+\end{bmatrix}
+\]
+
+\[
+F_V V_V^{-1} = \frac{1}{2}*\frac{N_H}{\epsilon_H\beta_{HH}+N_H(\epsilon_H+d_H)(\gamma_H+d_H)}
+\begin{bmatrix}
+\epsilon_H \beta_{HH}\frac{S_H}{N_H^2} & \beta_{HH}\frac{S_H}{N_H^2}(\epsilon_H+d_H)\\
+\epsilon_H b_H & b_H(\epsilon_H + d_H)
+\end{bmatrix}
+\]
+
+Letting A = $\frac{N_H}{\epsilon_H \beta_{HH}+N_H(\epsilon_H+d_H)(\gamma_H + d_H)}$, 
+
+$\rho(F_V V_V^{-1}) = \frac{1}{2A}\left[\left(\frac{\epsilon_H\beta_{HH}S_H}{N_H^2} \right)^2- 2\left(\frac{\epsilon_H \beta_{HH}S_H b_H}{N_H^2} (\epsilon_H+d_H)\right)+4\left(\frac{\beta_{HH}S_H\epsilon_H b_H}{N_H^2}(\epsilon_H+d_H) \right)+ b_H^2(\epsilon_H+d_H)^2\right]^{-1/2}$
+
+>>>$+\frac{1}{2A}\left[\frac{\epsilon_H\beta_{HH}S_H}{N_H^2} + b_H(\epsilon_H+d_H) \right]$
+
+For the horizontal portion, 
+
+\[
+V_H^{-1} = 
+\begin{bmatrix}
+\frac{1}{\epsilon_H + d_H} & 0 & 0 & 0 & 0 & 0\\
+\frac{\epsilon_H}{(\gamma_H + d_H - b_H)(\epsilon_H + d_H)} & \frac{1}{\gamma_H + d_H - b_H} & 0 & 0 & 0 & 0\\
+0 & 0 & \frac{1}{\epsilon_{C} + d_{C}\kappa_1} & 0 & 0 & 0\\
+0 & 0 & \frac{\epsilon_{C}}{(\epsilon_{C}+d_{C}\kappa_1)(d_{C}\kappa_1)} & \frac{1}{d_{C}\kappa_1} & 0 & 0\\
+0 & 0 & 0 & 0 & \frac{1}{\epsilon_{I}+d_{I}\kappa_2} & 0\\
+0 & 0 & 0 & 0 & \frac{\epsilon_{I}}{(\epsilon_{I}+d_{I}\kappa_2)(d_{I}\kappa_2)} & \frac{1}{d_{I}\kappa_2}
+\end{bmatrix}
+\]
+
+\[
+F_H V_H^{-1} = 
+\begin{bmatrix}
+\frac{\beta_{HH}S_H\epsilon_H}{N_H^2 (\gamma_H+d_H-b_H)(\epsilon_H + d_H)} 
+& \frac{\beta_{HH}S_H}{(\gamma_H+d_H-b_H)N_H^2} 
+& \frac{\beta_{CH} S_H \epsilon_{C}}{N_H d_{C}\kappa_1 (\epsilon_{C}+d_{C}\kappa_1)} 
+& \frac{\beta_{CH}S_H}{N_Hd_{C}\kappa_1} 
+& \frac{\epsilon_{I}\beta_{IH}S_H}{N_H d_{I}\kappa_2 (\epsilon_{I}+d_{I}\kappa_2)} 
+& \frac{\beta_{IH}S_H}{N_H d_{I}\kappa_2}\\
+0 & 0 & 0 & 0 & 0 & 0\\
+\frac{\beta_{HC}S_{C}\epsilon_H}{N_H (\gamma_H+d_H-b_H)(\epsilon_H + d_H)} 
+& \frac{\beta_{HC}S_{C}}{N_H(\gamma_H+d_H-b_H)} & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0 & 0\\
+\frac{\beta_{HI}S_{I}\epsilon_H}{N_H(\gamma_H+d_H-b_H)(\epsilon_H+d_H)} 
+& \frac{\beta_{HI}S_{I}}{N_H(\gamma_H+d_H-b_H)} & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0 & 0
+\end{bmatrix}
+\]
+
+Letting $A = \left(\frac{\beta_{HH S_H}}{N_H^2}\right)\left(\frac{\epsilon_H}{\gamma_H+d_H-b_H}\right)\left(\frac{1}{\epsilon_H+d_H}\right)$, C = $\left(\frac{\beta_{CH}S_H}{N_H}\right)\left[\frac{\epsilon_{C}}{(\epsilon_{C}+d_{C}\kappa_1)d_{C}\kappa_1}\right]$, G = $\left(\frac{\beta_{HC}S_{C}}{N_H} \right) \left[\frac{\epsilon_H}{(\gamma_H + d_H - b_H)(\epsilon_H+d_H)}\right]$, E = $\frac{\epsilon_{I}\beta_{IH}S_H}{(\epsilon_{I}+d_{I}\kappa_2)d_{I}\kappa_2N_H}$, and I = $\left(\frac{\beta_{HI}S_{I}}{N_H}\right)\left[\frac{\epsilon_H}{(\gamma_H+d_H-b_H)(\epsilon_H+d_H)}\right]$,we conclude that the basic reproductive number,   
+
+>>>$R_0 = \rho(F_H V_H^{-1}) = \frac{1}{2}(A + \sqrt(A^2 + 4CG + 4EI))$.
